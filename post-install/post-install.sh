@@ -118,15 +118,16 @@ function configure_rhel() {
 
     # Disable SELinux
     # SELinux should be configured correctly with contexts.
-    selinux_status=$(sestatus | awk '/^Mode from config file:/ {print $NF}')
+    selinux_status=$(sestatus | awk '/^Mode from config:/ {print $NF}')
     if [[ "${selinux_status}" == enforcing ]]; then
         echo -e "Setting SELinux mode to permissive."
         sed -i '/^SELINUX=/s/enforcing/permissive/' /etc/selinux/config
 
-        selinux_config_status=$(sestatus | awk '/^Mode from config file:/ {print $NF}')
+        unset selinux_status
+        selinux_status=$(sestatus | awk '/^Mode from config/ {print $NF}')
 
-        if [[ "${selinux_config_status}" == permissive ]]; then
-            echo -e "Successfully set SELinux to permissive. A reboot is required."
+        if [[ "${selinux_status}" == permissive ]]; then
+            echo -e "Successfully set SELinux to permissive. Please reboot."
         fi
     else
         echo -e "SELinux is not enforcing."
