@@ -99,6 +99,7 @@ function configure_rhel() {
         open-vm-tools
         openssh-server
         openssh-clients
+        python39
         vim-enhanced
     )
 
