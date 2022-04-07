@@ -110,8 +110,12 @@ function configure_rhel() {
     yum install -y "${packages[@]}"
 
     # Add the administrative user.
-    adduser "${user_name}"
-    passwd "${user_name}"
+    if ! id "${user_name}" &>/dev/null; then
+        adduser "${user_name}"
+        passwd "${user_name}"
+    else
+        echo -e "User ${user_name} already exists. Proceeding."
+    fi
 
     # Add the ssh-users group and add svc-admin to it.
     groupadd "${ssh_group}"
