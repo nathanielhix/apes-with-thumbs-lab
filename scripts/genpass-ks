@@ -4,16 +4,14 @@ Generate crypted passwords for kickstart files.
 '''
 
 from sys import argv
-from crypt import crypt
+from crypt import crypt, mksalt
 from random import randrange, choice
-from secrets import token_hex
 from getpass import getpass
 import argparse
 
 
 def main():
     passwd_params = {
-        'salt_len': None,
         'pw_len': None,
         'pw_str': None
     }
@@ -23,13 +21,6 @@ def main():
         parser = argparse.ArgumentParser(description='Generate Passwords')
 
         base_args = parser.add_argument_group(description='Base arguments.')
-
-        base_args.add_argument(
-            '-s',
-            '--salt-length',
-            type=check_pos_int,
-            help='Length of the salt expressed as positive integer.'
-        )
 
         base_args.add_argument(
             '-p',
@@ -48,9 +39,6 @@ def main():
         args = parser.parse_args()
 
     # Parse args.
-        if args.salt_length:
-            passwd_params['salt_len'] = args.salt_length
-
         if args.password_length:
             passwd_params['pw_len'] = args.password_length
 
@@ -69,8 +57,6 @@ def main():
             passwd_params['pw_str'] = pass_one
 
     # Fill any holes left by unused arguments.
-    if passwd_params['salt_len'] is None:
-        passwd_params['salt_len'] = randrange(16, 32)
     if passwd_params['pw_len'] is None:
         passwd_params['pw_len'] = randrange(50, 150)
     if passwd_params['pw_str'] is None:
@@ -102,7 +88,7 @@ def gen_string(str_length):
 
 
 def gen_passwd(passwd_params):
-    salt = '$6$' + token_hex(passwd_params['salt_len'])
+    salt = mksalt()
 
     return crypt(passwd_params['pw_str'], salt)
 
