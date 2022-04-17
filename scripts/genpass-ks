@@ -76,7 +76,7 @@ def main():
     if passwd_params['pw_str'] is None:
         passwd_params['pw_str'] = gen_string(passwd_params['pw_len'])
 
-    print(print_passwd(passwd_params))
+    print(gen_passwd(passwd_params))
 
 
 def check_pos_int(val):
@@ -101,9 +101,8 @@ def gen_string(str_length):
     return ''.join(choice(char_types) for x in range(str_length))
 
 
-def print_passwd(passwd_params):
-    salt = token_hex(passwd_params['salt_len'])
-    salt = '$6$' + salt
+def gen_passwd(passwd_params):
+    salt = '$6$' + token_hex(passwd_params['salt_len'])
 
     return crypt(passwd_params['pw_str'], salt)
 
