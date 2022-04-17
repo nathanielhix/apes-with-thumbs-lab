@@ -64,7 +64,12 @@ def main():
         passwd_params['pw_str'] = gen_string(passwd_params['pw_len'])
 
     # Print the salted and hashed password.
-    print(crypt(passwd_params['pw_str'], mksalt()))
+    print(
+        crypt(
+            passwd_params['pw_str'],
+            mksalt()
+        )
+    )
 
 
 def check_pos_int(val):
