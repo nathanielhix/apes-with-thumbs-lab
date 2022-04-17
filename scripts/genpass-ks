@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+'''
+Generate crypted passwords for kickstart files.
+'''
+
+import sys
+import crypt
+import random
+import secrets
+import getpass
+import argparse
+
+
+def main():
+    passwd_params = {
+        'salt_len': None,
+        'pw_len': None,
+        'pw_str': None
+    }
+
+    if len(sys.argv) > 1:
+        # Create the argument parser
+        parser = argparse.ArgumentParser(description='Generate Passwords')
+
+        base_args = parser.add_argument_group(description='Base arguments.')
+
+        base_args.add_argument(
+            '-s',
+            '--salt-length',
+            type=check_pos_int,
+            help='Length of the salt expressed as positive integer.'
+        )
+
+        base_args.add_argument(
+            '-p',
+            '--password-length',
+            type=check_pos_int,
+            help='Password length expressed as a positive integer.'
+        )
+
+        base_args.add_argument(
+            '-i',
+            '--interactive',
+            action='store_true',
+            help='Interactively accept a password as input.'
+        )
+
+        args = parser.parse_args()
+
+    # Parse args.
+        if args.salt_length:
+            passwd_params['salt_len'] = args.salt_length
+
+        if args.password_length:
+            passwd_params['pw_len'] = args.password_length
+
+        if args.interactive:
+            pass_one = 'pass_one'
+            pass_two = 'pass_two'
+            while True:
+                pass_one = getpass.getpass(prompt='Enter a password: ')
+                pass_two = getpass.getpass(prompt='Enter the password again: ')
+                if pass_one == pass_two:
+                    break
+                else:
+                    print('Passwords do not match.\n')
+
+            passwd_params['pw_len'] = len(pass_one)
+            passwd_params['pw_str'] = pass_one
+
+    # Fill any holes left by unused arguments.
+    if passwd_params['salt_len'] is None:
+        passwd_params['salt_len'] = random.randrange(16, 32)
+    if passwd_params['pw_len'] is None:
+        passwd_params['pw_len'] = random.randrange(50, 150)
+    if passwd_params['pw_str'] is None:
+        passwd_params['pw_str'] = gen_string(passwd_params['pw_len'])
+
+    print(print_passwd(passwd_params))
+
+
+def check_pos_int(val):
+    # Test val to verify it's a positive integer.
+    try:
+        test_val = int(val)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f'Not an integer: {val}')
+
+    if test_val <= 0:
+        raise argparse.ArgumentTypeError(f'Not a positive integer: {val}')
+
+    return test_val
+
+
+def gen_string(str_length):
+    # Generate a string of a specified length.
+    import string
+
+    char_types = string.ascii_letters + string.digits + string.punctuation
+
+    return ''.join(random.choice(char_types) for x in range(str_length))
+
+
+def print_passwd(passwd_params):
+    salt = secrets.token_hex(passwd_params['salt_len'])
+    salt = '$6$' + salt
+
+    return crypt.crypt(passwd_params['pw_str'], salt)
+
+
+if __name__ == '__main__':
+    exit(main())
