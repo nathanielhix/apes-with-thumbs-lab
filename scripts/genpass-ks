@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-Generate crypted passwords for kickstart files.
+Generate salted and hashed passwords for kickstart configurations.
 '''
 
 import argparse
@@ -12,15 +12,16 @@ from sys import argv
 
 
 def main():
+    # Set starting values for password paramaters.
     passwd_params = {
         'pw_len': None,
         'pw_str': None
     }
 
+    # If arguments are supplied, configure an argument parser.
     if len(argv) > 1:
         # Create the argument parser
         parser = argparse.ArgumentParser(description='Generate Passwords')
-
         base_args = parser.add_argument_group(description='Base arguments.')
 
         base_args.add_argument(
@@ -57,7 +58,7 @@ def main():
             passwd_params['pw_len'] = len(pass_one)
             passwd_params['pw_str'] = pass_one
 
-    # Fill any holes left by unused arguments.
+    # Fill any holes left by unsupplied arguments.
     if passwd_params['pw_len'] is None:
         passwd_params['pw_len'] = randrange(50, 150)
     if passwd_params['pw_str'] is None:
