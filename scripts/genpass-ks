@@ -60,10 +60,10 @@ def main():
             while True:
                 pass_one = getpass(prompt='Enter a password: ')
                 pass_two = getpass(prompt='Enter the password again: ')
-                if pass_one == pass_two:
+                if (pass_one == pass_two) and (pass_one.strip()):
                     break
                 else:
-                    print('Passwords do not match.\n')
+                    print('Passwords do not match or are empty.\n')
 
             passwd_params['pw_len'] = len(pass_one)
             passwd_params['pw_str'] = pass_one
