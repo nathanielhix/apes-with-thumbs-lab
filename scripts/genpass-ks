@@ -96,7 +96,7 @@ def gen_string(str_length):
     # Generate a string of a specified length.
     import string
 
-    char_types = string.ascii_letters + string.digits + string.punctuation
+    char_types = string.printable + string.whitespace
 
     return ''.join(choice(char_types) for x in range(str_length))
 
