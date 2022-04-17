@@ -3,11 +3,12 @@
 Generate crypted passwords for kickstart files.
 '''
 
-from sys import argv
-from crypt import crypt, mksalt
-from random import randrange, choice
-from getpass import getpass
 import argparse
+from crypt import crypt, mksalt
+from getpass import getpass
+from random import randrange, choice
+from string import printable, whitespace
+from sys import argv
 
 
 def main():
@@ -62,7 +63,8 @@ def main():
     if passwd_params['pw_str'] is None:
         passwd_params['pw_str'] = gen_string(passwd_params['pw_len'])
 
-    print(gen_passwd(passwd_params))
+    # Print the salted and hashed password.
+    print(crypt(passwd_params['pw_str'], mksalt()))
 
 
 def check_pos_int(val):
@@ -80,17 +82,9 @@ def check_pos_int(val):
 
 def gen_string(str_length):
     # Generate a string of a specified length.
-    import string
-
-    char_types = string.printable + string.whitespace
+    char_types = printable + whitespace
 
     return ''.join(choice(char_types) for x in range(str_length))
-
-
-def gen_passwd(passwd_params):
-    salt = mksalt()
-
-    return crypt(passwd_params['pw_str'], salt)
 
 
 if __name__ == '__main__':
