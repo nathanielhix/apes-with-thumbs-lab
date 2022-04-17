@@ -12,7 +12,7 @@ from sys import argv
 
 
 def main():
-    # Set starting values for password paramaters.
+    # Set starting values for password parameters.
     passwd_params = {
         'pw_len': None,
         'pw_str': None
