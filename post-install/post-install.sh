@@ -118,8 +118,16 @@ function configure_rhel() {
     fi
 
     # Add the ssh-users group and add svc-admin to it.
-    groupadd "${ssh_group}"
-    usermod -aG "${ssh_group}" "${user_name}"
+    if ! getent group "${ssh_group}"; then
+        groupadd "${ssh_group}"
+    fi
+
+    # Get groups
+    readarray -t group_memberships < <(id "${user_name}" --name --groups)
+
+    if [[ ! "${group_memberships[*]}" =~ "${ssh_group}"( |$) ]]; then
+        usermod -aG "${ssh_group}" "${user_name}"
+    fi
 
     # Disable SELinux
     # SELinux should be configured correctly with contexts.
