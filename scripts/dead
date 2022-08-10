@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+
+import argparse
+import ipaddress
+import json
+import socket
+import subprocess
+import sys
+
+
+def main():
+    for x in sys.argv[1:]:
+        if not x.startswith('-'):
+            hostname = x
+            break
+    else:
+        msg = 'No hostname provided.'
+        exit_msg(msg, 1)
+
+    args = conf_args(hostname)
+
+    results = {
+        'hostname': hostname,
+        'alive': ping_host(hostname)
+    }
+
+    if args.json:
+        print(json.dumps(results))
+    elif args.csv:
+        print(f'{x},'.join(x for x in results.values()))
+    else:
+        for k, v in results.items():
+            print(f'{k}: {v}')
+
+
+def exit_msg(msg, status):
+    if status == 0:
+        print(f'{msg}')
+    else:
+        print(f'{msg}', file=sys.stderr)
+
+    sys.exit(status)
+
+
+def conf_args(user_input):
+    # Create a parser.
+    parser = argparse.ArgumentParser()
+
+    # Create an argument group.
+    opts = parser.add_argument_group('Options')
+
+    # Add arguments.
+    opts.add_argument(
+        user_input
+    )
+
+    opts.add_argument(
+        '-j',
+        '--json',
+        action='store_true',
+        help='Print output in JSON.'
+    )
+
+    opts.add_argument(
+        '-c',
+        '--csv',
+        action='store_true',
+        help='Print output in CSV.'
+    )
+
+    return parser.parse_args()
+
+
+def ping_host(hostname):
+    cmd_ping = [
+        'ping',
+        '-c1',
+        hostname
+    ]
+
+    ping_result = subprocess.run(
+        cmd_ping,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding='utf-8'
+    )
+
+    if ping_result.returncode == 0:
+        return 'up'
+    else:
+        return 'down'
+
+
+if __name__ == '__main__':
+    sys.exit(main())
