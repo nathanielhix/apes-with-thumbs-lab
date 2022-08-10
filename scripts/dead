@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+'''
+A script to report network reachability of remote hosts.
+Supports CSV and JSON output.
+'''
 
 import argparse
 import ipaddress
@@ -9,6 +13,9 @@ import sys
 
 
 def main():
+    # Get user input.
+    # Determine the hostname.
+    # To be replaced with a regex check.
     for x in sys.argv[1:]:
         if not x.startswith('-'):
             hostname = x
@@ -17,13 +24,16 @@ def main():
         msg = 'No hostname provided.'
         exit_msg(msg, 1)
 
+    # Instantiate an argument parser.
     args = conf_args(hostname)
 
+    # Configure the results dictionary.
     results = {
         'hostname': hostname,
         'alive': ping_host(hostname)
     }
 
+    # Print the results.
     if args.json:
         print(json.dumps(results))
     elif args.csv:
@@ -34,6 +44,7 @@ def main():
 
 
 def exit_msg(msg, status):
+    # Exit with the supplied message and numeric status.
     if status == 0:
         print(f'{msg}')
     else:
@@ -43,10 +54,10 @@ def exit_msg(msg, status):
 
 
 def conf_args(user_input):
-    # Create a parser.
+    # Define a parser.
     parser = argparse.ArgumentParser()
 
-    # Create an argument group.
+    # Define an argument group.
     opts = parser.add_argument_group('Options')
 
     # Add arguments.
