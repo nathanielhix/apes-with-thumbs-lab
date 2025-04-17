@@ -10,7 +10,7 @@
 
 function main() {
     # Verify that we have the appropriate permissions.
-    if [[ ${EUID} -ne 0 ]]; then
+    if [[ $EUID -ne 0 ]]; then
         echo -e "You must be root to execute this script."
         exit 1
     fi
@@ -44,9 +44,9 @@ function main() {
 
     os_release=$(get_os)
 
-    if [[ "${family_debian[*]}" =~ "${os_release}"( |$) ]]; then
+    if [[ "${family_debian[*]}" =~ "$os_release"( |$) ]]; then
         configure_debian
-    elif [[ "${family_rhel[*]}" =~ "${os_release}"( |$) ]]; then
+    elif [[ "${family_rhel[*]}" =~ "$os_release"( |$) ]]; then
         configure_rhel
     else
         echo -e "OS family unknown."
@@ -71,22 +71,22 @@ function get_os() {
     # Strip double quotes from the distribution name.
 
     for x in "${files_release[@]}"; do
-        if [[ -f "${x}" ]]; then
+        if [[ -f "$x" ]]; then
             while read line; do
-                if [[ "${line}" =~ ^ID= ]]; then
+                if [[ "$line" =~ ^ID= ]]; then
                     distro_name="${line#ID=}"
                     distro_name="${distro_name//\"}"
                     break
                 fi
-            done < "${x}"
+            done < "$x"
         fi
-        [[ "${distro_name}" ]] && break
+        [[ "$distro_name" ]] && break
     done
 
     # Return the distro name, or a failure string.
 
-    if [[ "${distro_name}" ]]; then
-        echo -e "${distro_name}"
+    if [[ "$distro_name" ]]; then
+        echo -e "$distro_name"
     else
         echo -e "unknown_distro"
     fi
@@ -110,36 +110,36 @@ function configure_rhel() {
     yum install -y "${packages[@]}"
 
     # Add the administrative user.
-    if ! id "${user_name}" &>/dev/null; then
-        adduser "${user_name}"
-        passwd "${user_name}"
+    if ! id "$user_name" &>/dev/null; then
+        adduser "$user_name"
+        passwd "$user_name"
     else
-        echo -e "User ${user_name} already exists. Proceeding."
+        echo -e "User $user_name already exists. Proceeding."
     fi
 
     # Add the ssh-users group and add svc-admin to it.
-    if ! getent group "${ssh_group}"; then
-        groupadd "${ssh_group}"
+    if ! getent group "$ssh_group"; then
+        groupadd "$ssh_group"
     fi
 
     # Get groups
-    readarray -t group_memberships < <(id "${user_name}" --name --groups)
+    readarray -t group_memberships < <(id "$user_name" --name --groups)
 
-    if [[ ! "${group_memberships[*]}" =~ "${ssh_group}"( |$) ]]; then
-        usermod -aG "${ssh_group}" "${user_name}"
+    if [[ ! "${group_memberships[*]}" =~ "$ssh_group"( |$) ]]; then
+        usermod -aG "$ssh_group" "$user_name"
     fi
 
     # Disable SELinux
     # SELinux should be configured correctly with contexts.
     selinux_status=$(sestatus | awk '/^Mode from config:/ {print $NF}')
-    if [[ "${selinux_status}" == enforcing ]]; then
+    if [[ "$selinux_status" == enforcing ]]; then
         echo -e "Setting SELinux mode to permissive."
         sed -i '/^SELINUX=/s/enforcing/permissive/' /etc/selinux/config
 
         unset selinux_status
         selinux_status=$(sestatus | awk '/^Mode from config/ {print $NF}')
 
-        if [[ "${selinux_status}" == permissive ]]; then
+        if [[ "$selinux_status" == permissive ]]; then
             echo -e "Successfully set SELinux to permissive. Please reboot."
         fi
     else
@@ -149,7 +149,7 @@ function configure_rhel() {
 
 
 function configure_debian() {
-    echo -e "${FUNCNAME} not implemented yet."
+    echo -e "$FUNCNAME not implemented yet."
 }
 
 
