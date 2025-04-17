@@ -10,7 +10,7 @@
 
 function main() {
     # Verify that we have the appropriate permissions.
-    if [[ $EUID -ne 0 ]]; then
+    if (( EUID != 0 )); then
         echo -e "You must be root to execute this script."
         exit 1
     fi
@@ -149,7 +149,7 @@ function configure_rhel() {
 
 
 function configure_debian() {
-    echo -e "$FUNCNAME not implemented yet."
+    echo -e "${FUNCNAME[0]} not implemented yet."
 }
 
 
