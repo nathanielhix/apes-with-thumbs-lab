@@ -6,26 +6,26 @@
 conf_dir="/var/named/"
 
 for fwd_zone in ${conf_dir}*db; do
-    if [[ "${fwd_zone}" =~ db$ ]]; then
-        zone_info=$(awk '/^@ IN NS/ {print $NF}' "${fwd_zone}")
+    if [[ "$fwd_zone" =~ db$ ]]; then
+        zone_info=$(awk '/^@ IN NS/ {print $NF}' "$fwd_zone")
         rev_zone="${fwd_zone/%db/rev}"
 
         zone_name="${zone_info%*.}"
         zone_name="${zone_info#*.}"
 
-    	zone_ns_hostname="${zone_info%%.*}"
-    	zone_ns_ip=$(awk "/^${zone_ns_hostname}/"'{print $NF}' "${fwd_zone}")
+        zone_ns_hostname="${zone_info%%.*}"
+        zone_ns_ip=$(awk "/^${zone_ns_hostname}/"'{print $NF}' "$fwd_zone")
 
-        echo -e "Checking ${fwd_zone}"
-        named-checkzone "${zone_name}" "${fwd_zone}"
+        echo -e "Checking $fwd_zone"
+        named-checkzone "$zone_name" "$fwd_zone"
 
-        if [[ -f "${rev_zone}" ]]; then
-            echo -e "Found reverse zone. Checking ${rev_zone}"
-            named-checkzone "${zone_ns_ip}" "${rev_zone}"
+        if [[ -f "$rev_zone" ]]; then
+            echo -e "Found reverse zone. Checking $rev_zone"
+            named-checkzone "$zone_ns_ip" "$rev_zone"
         else
-            "No reverse zone found for ${zone_name}"
+            "No reverse zone found for $zone_name"
         fi
     else
-        echo "Skipping ${fwd_zone}"
+        echo "Skipping $fwd_zone"
     fi
 done
