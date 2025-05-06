@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Create or update BaseOS, AppStream, and Extras repositories.
+
+local_repos=(baseos appstream extras)
+base_repo="/data/repo/almalinux"
+
+# Iterate over local_repos and update them.
+for repo in "${local_repos[@]}"; do
+        echo "Updating $repo"
+        reposync --repoid="$repo" --norepopath --newest-only --download-metadata --download-path="${base_repo}/${repo}"
+done
